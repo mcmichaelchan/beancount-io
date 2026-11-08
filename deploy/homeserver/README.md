@@ -38,6 +38,13 @@ The application, API, OAuth discovery and authenticated Git proxy share
 `https://<PUBLIC_HOST>`. Gitea and all databases remain internal. Do not expose
 Gitea directly. Public Git uses `/git/<owner>/<ledger>.git` through backend-v2.
 
+To use an OpenAI-compatible gateway, set `OPENAI_BASE_URL` to its API base
+(including `/v1`, not its management page), `OPENAI_API_KEY` to its protected
+credential, and `LLM_FALLBACK_MODEL` to an available model. With no Anthropic
+credential set, this is the sole provider. The installed OpenAI SDK uses the
+Responses API, so the gateway must support `/v1/responses`, including streaming
+and tool calls. `ASK_AI_MODE=bql` uses this provider for the local agent.
+
 ## Backup and recovery
 
 Back up the four `family-ledger_*` data volumes together with the protected
