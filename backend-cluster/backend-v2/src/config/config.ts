@@ -196,6 +196,8 @@ export function getDevelopmentPremiumUserIds(
 }
 
 export interface AppConfig {
+  /** Private deployments own their entitlements and do not use hosted billing. */
+  selfHosted: boolean;
   api: ApiConfig;
   sshProxy: SshProxyConfig;
   env: Environment;
@@ -356,6 +358,7 @@ assertOAuthInteractionHost(oauthIssuer, oauthInteractionUrl);
 const oauthSigningKeys = getOptionalJwks(environment);
 
 export const config: AppConfig = {
+  selfHosted: process.env.SELF_HOSTED === "true",
   api: {
     scopeEnforcement: "enforce",
     developmentPremiumUserIds: getDevelopmentPremiumUserIds(

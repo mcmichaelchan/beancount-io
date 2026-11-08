@@ -3,6 +3,7 @@
 import type { NormalizedCacheObject } from "@apollo/client";
 
 interface ImportMetaEnv {
+  readonly VITE_SELF_HOSTED?: string;
   /** Public API URL used by the browser (CSR) */
   readonly VITE_API_URL: string;
   /** Optional internal API URL used during SSR (defaults to VITE_API_URL) */

@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { config } from "@/config/config";
 import { getUserTier, getUserTierLimits } from "../get-user-tier";
 import { BILLING_CLIENT_ID, SubscriptionTier } from "../../service/stripe";
 import { subscriptionPeriodEnd } from "../../service/subscription-plan";
@@ -6,6 +7,31 @@ import type { ClientSubscription } from "../../service/subscription-plan";
 
 const premium = "price_1RrSOGEqsEqs2tLVFnyB34qG";
 const org = "price_1SyPdcEqsEqs2tLVCWEgU1PZ";
+describe("private self-hosted entitlements", () => {
+  const original = config.selfHosted;
+  afterEach(() => {
+    config.selfHosted = original;
+  });
+
+  it("grants unlimited resources without calling any billing provider", async () => {
+    config.selfHosted = true;
+    const params = deps([]);
+    expect(await getUserTier(params)).toBe(SubscriptionTier.ENTERPRISE);
+    expect(await getUserTierLimits(params)).toEqual({
+      maxLedgers: -1,
+      maxCollaboratorsPerLedger: -1,
+      maxDirectives: -1,
+      aiCfoTokensMax: -1,
+    });
+    expect(params.stripe.listSubscriptions).not.toHaveBeenCalled();
+    expect(params.stripe.grantedStoreTiers).not.toHaveBeenCalled();
+  });
+
+  it("keeps hosted free limits when the operator has not enabled self-hosting", async () => {
+    config.selfHosted = false;
+    expect(await getUserTier(deps([]))).toBe(SubscriptionTier.FREE);
+  });
+});
 function sub(prices: string[], overrides = {}): ClientSubscription {
   return {
     id: "sub_synthetic",

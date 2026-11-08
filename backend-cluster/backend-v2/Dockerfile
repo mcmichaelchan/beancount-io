@@ -1,4 +1,5 @@
- FROM node:22.23.4-alpine
+ ARG NODE_IMAGE=node:22.23.4-alpine
+ FROM ${NODE_IMAGE}
 
  # Set working directory
  WORKDIR /app
@@ -13,7 +14,7 @@
  # Note: Peer dependency warnings for @as-integrations/koa are expected and non-blocking
  # Clear the download caches in the same layer: they are never read at runtime
  # and otherwise add ~10 GB to the image.
- RUN yarn install && \
+ RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 yarn install && \
      yarn cache clean && \
      rm -rf /usr/local/share/.cache /root/.cache /tmp/*
 

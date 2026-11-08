@@ -223,3 +223,9 @@ CSS v4 · Vitest · i18next (13+ languages).
 ## License
 
 [MIT](../LICENSE) © Beancount.io — the repository root `LICENSE` governs all packages.
+
+# Private self-hosting
+
+Set `VITE_SELF_HOSTED=true` at build time to hide hosted billing and upgrade
+screens. The matching backend must set `SELF_HOSTED=true`; this browser setting
+does not grant server permissions. See `../deploy/homeserver/README.md`.

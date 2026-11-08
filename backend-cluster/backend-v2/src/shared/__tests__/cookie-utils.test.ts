@@ -4,6 +4,7 @@ import {
   clearAuthCookie,
   getAuthCookieFromCtx,
 } from "../cookie-utils";
+import { config } from "@/config/config";
 
 const mockCtx = {
   cookies: {
@@ -14,7 +15,12 @@ const mockCtx = {
 } as any;
 
 describe("cookie-utils", () => {
+  const originalSelfHosted = config.selfHosted;
+  afterEach(() => {
+    config.selfHosted = originalSelfHosted;
+  });
   beforeEach(() => {
+    config.selfHosted = false;
     jest.clearAllMocks();
   });
 
@@ -25,6 +31,23 @@ describe("cookie-utils", () => {
   });
 
   describe("setAuthCookie", () => {
+    it("uses a secure host-only cookie on a private production domain", () => {
+      config.selfHosted = true;
+      const ctx = {
+        cookies: { set: jest.fn() },
+        URL: new URL("https://ledger.example.com:26543"),
+      } as any;
+      setAuthCookie(ctx, "synthetic-token", new Date(Date.now() + 60000), true);
+      expect(ctx.cookies.set).toHaveBeenCalledWith(
+        COOKIE_NAME,
+        "synthetic-token",
+        expect.objectContaining({
+          secure: true,
+          httpOnly: true,
+          domain: undefined,
+        }),
+      );
+    });
     it("should set cookie with secure=true for https context in production", () => {
       const expireAt = new Date(Date.now() + 60 * 60 * 1000);
       setAuthCookie(mockCtx, "mytoken", expireAt, true);

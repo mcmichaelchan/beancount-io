@@ -1,4 +1,5 @@
 import { Context } from "koa";
+import { config } from "@/config/config";
 
 export const COOKIE_NAME = "authSess:beancount.io";
 
@@ -38,7 +39,7 @@ function getCookieOptions(
     path: "/",
     // Set domain for cross-subdomain access in production
     // .beancount.io allows cookie to be shared across api.v3.beancount.io, dashboard.v3.beancount.io, etc.
-    domain: isProduction ? ".beancount.io" : undefined,
+    domain: isProduction && !config.selfHosted ? ".beancount.io" : undefined,
   };
 }
 
@@ -46,7 +47,9 @@ function getCookieOptions(
 // structurally identical cookie jars whose fluent `set` return type (`this`)
 // defeats nominal assignability between the two type graphs.
 export function clearAuthCookie(ctx: {
-  cookies: { set(name: string, value: string, opts: { maxAge: number }): unknown };
+  cookies: {
+    set(name: string, value: string, opts: { maxAge: number }): unknown;
+  };
 }): void {
   ctx.cookies.set(COOKIE_NAME, "", { maxAge: 0 });
 }

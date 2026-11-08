@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { config } from "@/config/config";
 import { logger } from "@/shared/logger";
 import { SubscriptionTier, TierLimits, getTierLimits } from "../service/stripe";
 import {
@@ -25,6 +26,10 @@ export async function getUserTier({
   stripe,
   userId,
 }: GetUserTierParams): Promise<SubscriptionTier> {
+  // Only the server operator can enable this; request data cannot grant it.
+  // Reuse the unlimited catalog so every API surface and Git check agrees.
+  if (config.selfHosted) return SubscriptionTier.ENTERPRISE;
+
   const [fromStripe, fromStores] = await Promise.all([
     stripeTier({ stripe, userId }),
     storeTiers({ stripe, userId }),

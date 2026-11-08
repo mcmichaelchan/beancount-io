@@ -1,3 +1,5 @@
+import { config } from "@/config/config";
+
 /**
  * The one rule for which browser origins the gateway trusts: any
  * `beancount.io` host (apex or subdomain, so a sibling subdomain such as the
@@ -7,6 +9,9 @@
  */
 export function isAllowedOrigin(origin: string): boolean {
   try {
+    if (config.selfHosted) {
+      return new URL(origin).origin === new URL(config.dashboard.url).origin;
+    }
     const { hostname } = new URL(origin);
     return (
       hostname === "beancount.io" ||

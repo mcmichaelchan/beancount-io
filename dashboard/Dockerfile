@@ -1,5 +1,6 @@
 # Build stage
-FROM node:22.23.4-alpine AS builder
+ARG NODE_IMAGE=node:22.23.4-alpine
+FROM ${NODE_IMAGE} AS builder
 
 WORKDIR /app
 
@@ -23,10 +24,13 @@ COPY . .
 # ones to .env.production.local instead, which Vite loads at higher precedence
 # than .env.production while an absent file changes nothing.
 ARG VITE_API_URL
+ARG VITE_SELF_HOSTED
 ARG VITE_SSR_API_URL
 ARG VITE_GA_MEASUREMENT_ID
 RUN set -eu; \
     : > .env.production.local; \
+    if [ -n "${VITE_SELF_HOSTED:-}" ]; then \
+      echo "VITE_SELF_HOSTED=$VITE_SELF_HOSTED" >> .env.production.local; fi; \
     if [ -n "${VITE_API_URL:-}" ]; then \
       echo "VITE_API_URL=$VITE_API_URL" >> .env.production.local; fi; \
     if [ -n "${VITE_SSR_API_URL:-}" ]; then \
@@ -38,7 +42,7 @@ RUN set -eu; \
 RUN yarn build
 
 # Runtime stage
-FROM node:22.23.4-alpine
+FROM ${NODE_IMAGE}
 
 WORKDIR /app
 

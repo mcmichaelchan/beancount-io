@@ -1,4 +1,5 @@
 interface Config {
+  selfHosted: boolean;
   apiUrl: string;
   /**
    * Google Analytics 4 Measurement ID for the current environment's data stream.
@@ -30,6 +31,7 @@ if (import.meta.env.MODE === "development" && !apiUrl) {
 }
 
 export const config: Config = {
+  selfHosted: import.meta.env.VITE_SELF_HOSTED === "true",
   apiUrl,
   gaMeasurementId,
   analyticsEnabled: Boolean(gaMeasurementId),

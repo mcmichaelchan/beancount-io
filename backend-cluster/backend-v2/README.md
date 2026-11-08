@@ -1,5 +1,14 @@
 # Beancount.io Backend
 
+## Private self-hosting
+
+Set `SELF_HOSTED=true` only on your own deployment to grant unlimited local
+entitlements, including API-key creation, without subscription providers. The
+default is false. Permission checks, credential scopes and accounting validation
+remain enforced. See `../../deploy/homeserver/README.md` for the HTTPS proxy
+target. Account provisioning without email is an operator-only stdin command:
+`yarn ts-node -r tsconfig-paths/register --transpile-only scripts/provision-self-hosted-user.ts`.
+
 Backend for [Beancount.io](https://beancount.io/), the hosted plain-text accounting service.
 
 ## Overview

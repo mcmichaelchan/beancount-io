@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { config } from "@/config/config";
 import { isAppSession } from "@/common/lib/app-session";
 import { useReactNativeContext } from "@/common/providers/react-native-bridge-provider/react-native-bridge-context";
 
@@ -16,5 +17,5 @@ export function useHidesBilling(): boolean {
     isAppSession,
     () => false,
   );
-  return isReactNative || appSession;
+  return config.selfHosted || isReactNative || appSession;
 }

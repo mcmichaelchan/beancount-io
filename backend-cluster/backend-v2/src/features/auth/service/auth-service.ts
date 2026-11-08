@@ -212,7 +212,7 @@ export class AuthService implements IAuthService {
       AppConfig,
       "favaApi" | "dashboard" | "gitea"
     > &
-      Partial<Pick<AppConfig, "jwt">>,
+      Partial<Pick<AppConfig, "jwt" | "selfHosted">>,
     private readonly isPwnedPassword: IsPwnedPassword,
     private readonly enqueueAuthMail?: IAuthMailService["enqueue"],
   ) {}
@@ -290,6 +290,8 @@ export class AuthService implements IAuthService {
         }
 
         delayRun<void>(async () => {
+          // Private installations do not send upstream-branded welcome mail.
+          if (this.config.selfHosted) return;
           const welcomeParams = {
             firstName,
             dashboardUrl: "https://beancount.io/ledger",

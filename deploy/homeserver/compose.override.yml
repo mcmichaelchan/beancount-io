@@ -1,0 +1,45 @@
+name: family-ledger
+
+services:
+  caddy:
+    ports: !override
+      - "${LAN_ADDRESS:-127.0.0.1}:${SERVICE_PORT:-26543}:8080"
+    volumes: !override
+      - ../homeserver/Caddyfile:/etc/caddy/Caddyfile:ro
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST:?Set PUBLIC_HOST including the HTTPS port}
+
+  dashboard:
+    build:
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:22.23.4-alpine}
+        VITE_API_URL: https://${PUBLIC_HOST}/api-gateway/
+        VITE_SELF_HOSTED: "true"
+    environment:
+      SSR_API_URL: http://backend-v2:4104/api-gateway/
+
+  backend-v2:
+    build:
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:22.23.4-alpine}
+    environment:
+      SELF_HOSTED: "true"
+      SERVER_URL: https://${PUBLIC_HOST}
+      DASHBOARD_URL: https://${PUBLIC_HOST}
+      # Caddy resets X-Forwarded-For unless its upstream is explicitly trusted.
+      TRUSTED_PROXY_HOPS: "1"
+      EXTERNAL_GITEA_HOST_NAME: ${APP_DOMAIN}
+      EXTERNAL_GITEA_HTTP_PORT: ${SERVICE_PORT:-26543}
+
+  gitea:
+    environment:
+      GITEA__server__ROOT_URL: https://${PUBLIC_HOST}/git/
+      GITEA__server__DOMAIN: ${APP_DOMAIN}
+
+  ledger:
+    build:
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:22.23.4-alpine}
+    environment:
+      # Keep this private installation independent of hosted price services.
+      MANAGED_PRICE_ORIGINS: ""
